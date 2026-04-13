@@ -25,7 +25,7 @@ public static class DungeonConfig {
   //   "|", "-", and any other chars - walls, not walkable, not transparent,
   //              but discoverable. 
 
-  static string RIP =
+ public static string RIP =
       """
 
                     __________

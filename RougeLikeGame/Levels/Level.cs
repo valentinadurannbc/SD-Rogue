@@ -1,7 +1,7 @@
 using RogueLib.Dungeon;
 using RogueLib.Engine;
 using RogueLib.Utilities;
-using static System.Net.Mime.MediaTypeNames;
+
 using TileSet = System.Collections.Generic.HashSet<RogueLib.Utilities.Vector2>;
 
 namespace RlGameNS;
