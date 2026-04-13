@@ -4,34 +4,37 @@ using CommandMap = System.Collections.Generic.Dictionary<System.ConsoleKey, stri
 
 namespace RogueLib.Dungeon;
 
-public abstract class Scene : ICommandable, IDrawable {
-  // scenes must implement these services -------------------------
-  public abstract void DoCommand(Command command);
-  public abstract void Draw(IRenderWindow disp); // render the scene
-  public abstract void Update();                // update the scene
+public abstract class Scene : ICommandable, IDrawable
+{
+    // scenes must implement these services -------------------------
+    public abstract void DoCommand(Command command);
+    public abstract void Draw(IRenderWindow disp); // render the scene
+    public abstract void Update();                // update the scene
 
 
-   // fields -------------------------------------------------------
-   protected Player? _player;             // reference back to the player
-   public    Game?   _game;               // reference back to the game
-   protected bool    _levelActive = true; // currently active level
+    // fields -------------------------------------------------------
+    protected Player? _player;             // reference back to the player
+    public Game? _game;               // reference back to the game
+    protected bool _levelActive = true; // currently active level
 
-   // command system ------------------------------------------------
-   public    bool       IsActive => _levelActive;
-   protected CommandMap _commandMap;
+    public void QuitLevel() => _levelActive = false;
 
-   public bool HasCommand(ConsoleKey inputKey)
-      => _commandMap.ContainsKey(inputKey);
+    // command system ------------------------------------------------
+    public bool IsActive => _levelActive;
+    protected CommandMap _commandMap;
 
-   public string GetCommand(ConsoleKey inputKey)
-      => _commandMap[inputKey];
+    public bool HasCommand(ConsoleKey inputKey)
+       => _commandMap.ContainsKey(inputKey);
 
-   protected void RegisterCommand(ConsoleKey inputKey, string command)
-      => _commandMap[inputKey] = command;
+    public string GetCommand(ConsoleKey inputKey)
+       => _commandMap[inputKey];
 
-   // Constructor -----------------------------------------------------
-   public Scene()
-   {
-      _commandMap = new();
-   }
+    protected void RegisterCommand(ConsoleKey inputKey, string command)
+       => _commandMap[inputKey] = command;
+
+    // Constructor -----------------------------------------------------
+    public Scene()
+    {
+        _commandMap = new();
+    }
 }

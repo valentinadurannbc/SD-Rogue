@@ -1,15 +1,4 @@
-﻿using RogueLib.Dungeon;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SandBox01.Enemies
-{
-    internal class Skeleton
-    {
-    }
-}
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RogueLib.Dungeon;
 using RogueLib.Utilities;
 
