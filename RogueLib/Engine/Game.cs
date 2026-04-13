@@ -12,48 +12,59 @@ namespace RogueLib.Engine;
 // level 
 // ------------------------------------------------------- 
 
-public class Game {
-   // fixed size grid
-   public const int width  = 78;
-   public const int height = 25;
+public class Game
+{
+    // fixed size grid
+    public const int width = 100;
+    public const int height = 25;
 
-   protected Scene?         _currentLevel;
-   protected bool           _isQuit;
-   protected IRenderWindow? _window;
-   protected Player?        _player;
+    protected Scene? _currentLevel;
+    protected bool _isQuit;
+    protected IRenderWindow? _window;
+    protected Player? _player;
 
-   public Game() {
-      _isQuit = false;
-   }
+    public Game()
+    {
+        _isQuit = false;
+    }
 
-   public void run() {
-      // the game loop
-      while (_currentLevel!.IsActive) {
-         // ---------------
-         // draw the level 
-         // ---------------
-         if (_window is null)
-            throw new Exception("Game window not initialized");
+    public void run()
+    {
+        // the game loop
+        while (_currentLevel!.IsActive)
+        {
+            // ---------------
+            // draw the level 
+            // ---------------
+            if (_window is null)
+                throw new Exception("Game window not initialized");
 
-         _currentLevel!.Draw(_window);
-         _window!.Display();
+            _currentLevel!.Draw(_window);
+            _window!.Display();
 
-         // -----------------
-         // handle user input 
-         // -----------------
-         HandleUserInput();
+            // -----------------
+            // handle user input 
+            // -----------------
+            HandleUserInput();
 
-         // -----------------
-         // update the level
-         // ----------------- 
-         _currentLevel!.Update();
-      }
-   }
+            // -----------------
+            // update the level
+            // ----------------- 
+            _currentLevel!.Update();
+        }
+    }
 
 
-   protected virtual void HandleUserInput() {
-      ConsoleKeyInfo key = Console.ReadKey(true);
-      if (_currentLevel!.HasCommand(key.Key))
-         _currentLevel!.DoCommand(new Command(_currentLevel!.GetCommand(key.Key)));
-   }
+    public void SwitchScene(Scene scene)
+    {
+        _window?.Clear();
+        _currentLevel = scene;
+    }
+
+    protected virtual void HandleUserInput()
+    {
+        ConsoleKeyInfo key = Console.ReadKey(true);
+        if (_currentLevel!.HasCommand(key.Key))
+            _currentLevel!.DoCommand(new Command(_currentLevel!.GetCommand(key.Key)));
+    }
 }
