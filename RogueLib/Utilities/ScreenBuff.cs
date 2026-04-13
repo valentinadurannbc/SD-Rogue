@@ -18,118 +18,163 @@ namespace RogueLib.Utilities;
 // algorithm, whatever was drawn last will be on top. Which makes it
 // perfect for games.
 // ==============================================================
-public class ScreenBuff : IRenderWindow {
-   // statics and constants
-   protected const ConsoleColor _notAColor = (ConsoleColor)(-1); // -1 is sentinal value
+public class ScreenBuff : IRenderWindow
+{
+    // statics and constants
+    protected const ConsoleColor _notAColor = (ConsoleColor)(-1); // -1 is sentinal value
 
-   // fields
-   private readonly int             _width;
-   private readonly int             _height;
-   private readonly char[,]         _back;       // the back buffer
-   private readonly char[,]         _front;      // the front buffer
-   private readonly ConsoleColor[,] _backColor;  // back buffer color
-   private readonly ConsoleColor[,] _frontColor; // front buffer color
+    // fields
+    private readonly int _width;
+    private readonly int _height;
+    private readonly char[,] _back;       // the back buffer
+    private readonly char[,] _front;      // the front buffer
+    private readonly ConsoleColor[,] _backColor;  // back buffer color
+    private readonly ConsoleColor[,] _frontColor; // front buffer color
 
-   public int Width  => _width;
-   public int Height => _height;
+    public int Width => _width;
+    public int Height => _height;
 
-   // ----------- ctor and public methods ----------------
-   public ScreenBuff(int width = 78, int height = 25) {
-      _width      = width;
-      _height     = height;
-      _back       = new char[_width, _height];
-      _front      = new char[_width, _height];
-      _backColor  = new ConsoleColor[_width, _height];
-      _frontColor = new ConsoleColor[_width, _height];
-      ResetFront();
-   }
-
-
-   // ==============================================================
-   //            Publicly exposed methods
-   // ==============================================================
-   // Draw() methods all draw to the back buffer.
-   // Draw methods follow the painter algorighm, whatever was
-   // drawn last will be on top.
-
-   public virtual void fDraw(FilterSet fs, string s, ConsoleColor color = _notAColor)
-      => BuildOffsetFrame(s, Vector2.Zero, color, fs);
-
-   public virtual void Draw(string s, ConsoleColor color = _notAColor)
-      => BuildOffsetFrame(s, Vector2.Zero, color);
-
-   public virtual void Draw(string s, Vector2 pos, ConsoleColor color = _notAColor)
-      => BuildOffsetFrame(s, pos, color);
-
-   public virtual void Draw(char c, Vector2 pos, ConsoleColor foregroundColor = _notAColor) {
-      if (!IsValidPos(pos)) return;
-
-      _back[pos.X, pos.Y]      = c;
-      _backColor[pos.X, pos.Y] = (foregroundColor != _notAColor) ? foregroundColor : Console.ForegroundColor;
-   }
-
-   // Call Display() to write the back buffer to the screen.
-   public void Display() => FlushToScreen();
-
-   // ==============================================================
-   //            private implementation methods
-   // ==============================================================
-   protected bool IsValidPos(Vector2 pos)
-      => pos.X >= 0 && pos.X < _width && pos.Y >= 0 && pos.Y < _height;
-
-   protected void ResetFront() {
-      // fill front with sentinal values to indicate that nothing is on screen
-      var fgColor = Console.ForegroundColor;
-
-      for (int y = 0; y < _height; y++) {
-         for (int x = 0; x < _width; x++) {
-            _front[x, y]      = '\0';               // sentinal value 
-            _frontColor[x, y] = (ConsoleColor)(-1); // sentinal value
-         }
-      }
-   }
+    // ----------- ctor and public methods ----------------
+    public ScreenBuff(int width = 78, int height = 25)
+    {
+        _width = width;
+        _height = height;
+        _back = new char[_width, _height];
+        _front = new char[_width, _height];
+        _backColor = new ConsoleColor[_width, _height];
+        _frontColor = new ConsoleColor[_width, _height];
+        ResetFront();
+    }
 
 
-   protected void BuildOffsetFrame(string     s, Vector2 offset, ConsoleColor color = _notAColor,
-                                   FilterSet? filterSet = null) {
-      
-      var fgColor = (color == _notAColor) ? Console.ForegroundColor : color;
-      foreach (var (c, p) in Vector2.Parse(s)) {
-         
-         if (filterSet is not null && !filterSet.Contains(p)) 
-            continue;
-         var op = p + offset;
-         if (!IsValidPos(op)) 
-            continue;
-         _back[op.X, op.Y] = c;
-         _backColor[op.X, op.Y] = fgColor;
-      }
-   }
+    // ==============================================================
+    //            Publicly exposed methods
+    // ==============================================================
+    // Draw() methods all draw to the back buffer.
+    // Draw methods follow the painter algorighm, whatever was
+    // drawn last will be on top.
+
+    public virtual void fDraw(FilterSet fs, string s, ConsoleColor color = _notAColor)
+       => BuildOffsetFrame(s, Vector2.Zero, color, fs);
+
+    public virtual void Draw(string s, ConsoleColor color = _notAColor)
+       => BuildOffsetFrame(s, Vector2.Zero, color);
+
+    public virtual void Draw(string s, Vector2 pos, ConsoleColor color = _notAColor)
+       => BuildOffsetFrame(s, pos, color);
+
+    public virtual void Draw(char c, Vector2 pos, ConsoleColor foregroundColor = _notAColor)
+    {
+        if (!IsValidPos(pos)) return;
+
+        _back[pos.X, pos.Y] = c;
+        _backColor[pos.X, pos.Y] = (foregroundColor != _notAColor) ? foregroundColor : Console.ForegroundColor;
+    }
+
+    // Call Display() to write the back buffer to the screen.
+    public void Display() => FlushToScreen();
+
+    public void Clear()
+    {
+        for (int y = 0; y < _height; y++)
+        {
+            for (int x = 0; x < _width; x++)
+            {
+                _back[x, y] = ' ';
+                _backColor[x, y] = ConsoleColor.Black;
+                _front[x, y] = '\0';
+                _frontColor[x, y] = _notAColor;
+            }
+        }
+    }
+
+    // ==============================================================
+    //            private implementation methods
+    // ==============================================================
+    protected bool IsValidPos(Vector2 pos)
+       => pos.X >= 0 && pos.X < _width && pos.Y >= 0 && pos.Y < _height;
+
+    protected void ResetFront()
+    {
+        // fill front with sentinal values to indicate that nothing is on screen
+        var fgColor = Console.ForegroundColor;
+
+        for (int y = 0; y < _height; y++)
+        {
+            for (int x = 0; x < _width; x++)
+            {
+                _front[x, y] = '\0';               // sentinal value 
+                _frontColor[x, y] = (ConsoleColor)(-1); // sentinal value
+            }
+        }
+    }
 
 
-   protected void FlushToScreen() {
-      Console.CursorVisible  = false;
-      Console.OutputEncoding = System.Text.Encoding.UTF8;
+    protected void BuildOffsetFrame(string s, Vector2 offset, ConsoleColor color = _notAColor,
+                                    FilterSet? filterSet = null)
+    {
 
-      for (int y = 0; y < _height; y++) {
-         for (int x = 0; x < _width; x++) {
-            // if it hasn't changed, skip it
-            if (_back[x, y] == _front[x, y] && _backColor[x, y] == _frontColor[x, y]) continue;
+        var fgColor = (color == _notAColor) ? Console.ForegroundColor : color;
+        foreach (var (c, p) in Vector2.Parse(s))
+        {
 
-            // Something changed — pay the cost of positioning + writing
-            Console.SetCursorPosition(x, y);
-            var saveColor = Console.ForegroundColor;
-            Console.ForegroundColor = _backColor[x, y];
-            Console.Write(_back[x, y]);
-            Console.ForegroundColor = saveColor;
+            if (filterSet is not null && !filterSet.Contains(p))
+                continue;
+            var op = p + offset;
+            if (!IsValidPos(op))
+                continue;
+            _back[op.X, op.Y] = c;
+            _backColor[op.X, op.Y] = fgColor;
+        }
+    }
 
-            // Record what is now on screen
-            _front[x, y]      = _back[x, y];
-            _frontColor[x, y] = _backColor[x, y];
-         }
-      }
 
-      Console.ResetColor();
-      Console.SetCursorPosition(0, _height);
-   }
+    protected void FlushToScreen()
+    {
+        Console.CursorVisible = false;
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+        for (int y = 0; y < _height; y++)
+        {
+            for (int x = 0; x < _width; x++)
+            {
+                char backChar = _back[x, y];
+
+                if (backChar == '\0')
+                {
+                    if (_front[x, y] != '\0')
+                    {
+                        Console.SetCursorPosition(x, y);
+                        Console.Write(' ');
+                        _front[x, y] = '\0';
+                        _frontColor[x, y] = _notAColor;
+                    }
+                    _backColor[x, y] = _notAColor;
+                    continue;
+                }
+
+                if (backChar == _front[x, y] && _backColor[x, y] == _frontColor[x, y])
+                {
+                    _back[x, y] = '\0';
+                    _backColor[x, y] = _notAColor;
+                    continue;
+                }
+
+                Console.SetCursorPosition(x, y);
+                var saveColor = Console.ForegroundColor;
+                Console.ForegroundColor = _backColor[x, y];
+                Console.Write(backChar);
+                Console.ForegroundColor = saveColor;
+
+                _front[x, y] = backChar;
+                _frontColor[x, y] = _backColor[x, y];
+
+                _back[x, y] = '\0';
+                _backColor[x, y] = _notAColor;
+            }
+        }
+
+        Console.ResetColor();
+        Console.SetCursorPosition(0, _height);
+    }
 }
