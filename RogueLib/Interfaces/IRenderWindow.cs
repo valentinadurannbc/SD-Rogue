@@ -10,4 +10,6 @@ public interface IRenderWindow {
 
    void fDraw(FilterSet fs, string s, ConsoleColor color);
    void Display();
+
+    void Clear();
 }
