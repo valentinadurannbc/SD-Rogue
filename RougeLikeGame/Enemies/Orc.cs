@@ -1,0 +1,77 @@
+﻿using System.Collections.Generic;
+using RogueLib.Dungeon;
+using RogueLib.Utilities;
+
+namespace RlGameNS;
+
+public class Orc : IActor
+{
+    public char Glyph { get; } = 'O';
+    public Vector2 Pos { get; set; }
+    public int Hp { get; private set; } = 12;
+    public int Str { get; } = 4;
+    public int ExpValue { get; } = 3;
+
+    private const int DetectionRadius = 4;
+    private static readonly Vector2[] _directions = { Vector2.N, Vector2.S, Vector2.E, Vector2.W };
+    private int _turnCounter = 0;
+
+    public Orc(Vector2 pos, int hp = 12)
+    {
+        Pos = pos;
+        Hp = hp;
+    }
+
+    public void TakeDamage(int amount)
+    {
+        Hp = Math.Max(Hp - amount, 0);
+    }
+
+    public void Draw(IRenderWindow disp) =>
+       disp.Draw(Glyph, Pos, ConsoleColor.DarkYellow);
+
+    public void Update(HashSet<Vector2> walkables, Random rng, Player player)
+    {
+        _turnCounter++;
+        if (_turnCounter % 2 != 0) return;
+
+        var playerPos = player.Pos;
+        var dir = (Pos - playerPos).RookLength <= DetectionRadius
+           ? moveToward(playerPos, walkables)
+           : randomDir(walkables, rng, playerPos);
+
+        if (dir == Vector2.Zero) return;
+
+        var nextPos = Pos + dir;
+        if (nextPos == playerPos)
+        {
+            player.TakeDamage(Str);
+            return;
+        }
+
+        walkables.Add(Pos);
+        Pos = nextPos;
+        walkables.Remove(Pos);
+    }
+
+    private Vector2 moveToward(Vector2 target, HashSet<Vector2> walkables)
+    {
+        var best = Vector2.Zero;
+        var bestDist = int.MaxValue;
+        foreach (var d in _directions)
+        {
+            var next = Pos + d;
+            if (!walkables.Contains(next) && next != target) continue;
+            var dist = (next - target).RookLength;
+            if (dist < bestDist) { bestDist = dist; best = d; }
+        }
+        return best;
+    }
+
+    private Vector2 randomDir(HashSet<Vector2> walkables, Random rng, Vector2 playerPos)
+    {
+        var available = Array.FindAll(_directions,
+           d => walkables.Contains(Pos + d) || (Pos + d) == playerPos);
+        return available.Length == 0 ? Vector2.Zero : available[rng.Next(available.Length)];
+    }
+}
