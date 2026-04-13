@@ -21,8 +21,9 @@ namespace RlGameNS;
 // Intersect to create complex tile sets.
 // -----------------------------------------------------------------------
 public class Level : Scene {
-   // ---- level config ---- 
-   protected string? _map;
+    // ---- level config ---- 
+    protected readonly Random _rng = new();
+    protected string? _map;
    protected int     _senseRadius = 4;
 
    // --- Tile Sets -----
@@ -43,7 +44,7 @@ public class Level : Scene {
       _player     = p;
       _player.Pos = new Vector2(4, 12); // random, or at stairs
       _map        = map;
-      _game       = _game;
+      _game       = game;
 
       initMapTileSets(map);
       updateDiscovered();
@@ -78,13 +79,12 @@ public class Level : Scene {
 
       disp.fDraw(tilesToDraw, _map, ConsoleColor.Gray);
 
-      var rng = new Random();
       if (_player.Turn % 5 == 0)
-         _player._color = (ConsoleColor)rng.Next(10, 16);
+         _player._color = (ConsoleColor)_rng.Next(10, 16);
       _player!.Draw(disp);
-      // disp.Draw(_player!.Glyph, _player!.Pos, ConsoleColor.Cyan);
+        disp.Draw(_player!.Glyph, _player!.Pos, ConsoleColor.Cyan);
 
-      drawItems(disp);
+        drawItems(disp);
       drawEnemies(disp);
       disp.Draw(_player.HUD, new Vector2(0, 24), ConsoleColor.Green);
    }
@@ -136,19 +136,24 @@ public class Level : Scene {
 
       _walkables = _floor.Union(_tunnel).Union(_door).ToHashSet();
 
-//      for (int row = 0; row < lines.Length; ++row) {
-//         for (int col = 0; col < lines[row].Length; ++col) {
-//            char tile = lines[row][col];
-//
-//            if (tile == '.' || tile == '+' || tile == '#') {
-//               _walkables.Add(new Vector2(col, row));
-//               _decor.Add(new Vector2(col, row));
-//            } else if (tile != ' ') {
-//               _decor.Add(new Vector2(col, row));
-//            }
-//         }
-//      }
-   }
+        for (int row = 0; row < lines.Length; ++row)
+        {
+            for (int col = 0; col < lines[row].Length; ++col)
+            {
+                char tile = lines[row][col];
+
+                if (tile == '.' || tile == '+' || tile == '#')
+                {
+                    _walkables.Add(new Vector2(col, row));
+                    _decor.Add(new Vector2(col, row));
+                }
+                else if (tile != ' ')
+                {
+                    _decor.Add(new Vector2(col, row));
+                }
+            }
+        }
+    }
 
 // ------------------------------------------------------
 // Commands 
